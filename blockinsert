@@ -1,0 +1,9 @@
+[link]
+full_text=
+color=#ff5733
+command=~/.config/i3/scripts/openStory
+
+[news]
+command=~/.config/i3/scripts/newsBar
+label= 
+interval=10

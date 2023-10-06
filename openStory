@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+LINK=$(head -n 1 currentStory.json)
+i3-msg -q exec firefox $LINK

@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2023 Alex Pope
+# Licensed under the GPL version 2 only
+#
+# A news roulette from hackernews
+
+import os
+import requests 
+import json
+import time
+from datetime import date
+
+if os.path.isfile("dailyNews.json"):
+    with open("dailyNews.json","r") as newsInput:
+        dailyNews = json.load(newsInput)
+else:
+    dailyNews = {}
+    dailyNews["date"] = "not today"
+
+if dailyNews["date"] != str(date.today()) or len(dailyNews["storyIds"]) <= 0:
+    news = requests.get("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
+    if news.status_code == 200:
+        news = json.loads(news.text)
+        dailyNews = {}
+        dailyNews["date"] = str(date.today())
+        dailyNews["storyIds"] = news[:50]
+        with open("dailyNews.json","w") as newsInput:
+            newsInput.write(json.dumps(dailyNews, indent=4))
+
+newsId = dailyNews['storyIds'].pop(0)
+with open("dailyNews.json","w") as newsInput:
+    newsInput.write(json.dumps(dailyNews, indent=4))
+
+story = requests.get(f"https://hacker-news.firebaseio.com/v0/item/{newsId}.json?print=pretty")
+if story.status_code == 200:
+    story = json.loads(story.text)
+    if (story['type'] == "story"):
+        fulltext = f"<i>{story['title']}</i> : {story['score']}"
+        with open("currentStory.json", "w") as curStory:
+            curStory.write(f"{story['url']}")
+    else:
+        fulltext = f"<i>Type: {story['type']}: {story['type']}</i>"
+else:
+    story = "No news here..."
+    fulltext = f"<i>{story}</i>"
+
+print(fulltext)
+
